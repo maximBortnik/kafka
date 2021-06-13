@@ -1,0 +1,77 @@
+version: "3.8"
+services:
+  kafka:
+    image: landoop/fast-data-dev
+    restart: always
+    ports:
+      - 2181:2181
+      - 3030:3030
+      - 8081:8081
+      - 8082:8082
+      - 8083:8083
+      - 9092:9092 
+    networks:
+      - backend
+
+  client-app:
+    build:
+      context: ./client-app
+      dockerfile: Dockerfile
+    container_name: client-app
+    ports:
+      - 8080:8080
+    networks:
+      - backend
+    volumes:
+      - client_app_logs:/var/log/client-app/
+    depends_on:
+      - postgres
+      - kafka
+
+  courier-app:
+    build:
+      context: ./courier-app
+      dockerfile: Dockerfile
+    container_name: courier-app
+    networks:
+      - backend
+    volumes:
+      - courier_app_logs:/var/log/courier-app/  
+    depends_on:
+      - kafka
+
+  pizzeria-app:
+    build:
+      context: ./pizzeria-app
+      dockerfile: Dockerfile
+    container_name: pizzeria-app
+    networks:
+      - backend
+    volumes:
+      - pizzeria_app_logs:/var/log/pizzeria-app/  
+    depends_on:
+      - kafka     
+       
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: order
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - backend
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+networks:
+  backend:
+    driver: bridge
+volumes:
+  client_app_logs: {}
+  pizzeria_app_logs: {}
+  courier_app_logs: {}
+  postgres_data: {}

@@ -1,0 +1,15 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: pizzeria-app
+  kafka:
+    bootstrap-servers:
+      - kafka:9092
+    consumer:
+      auto-offset-reset: earliest
+
+logging:
+  file:
+    name: /var/log/pizzeria-app/app.log
